@@ -22,13 +22,13 @@ jobs:
         with:
           python-version: '3.10'
       
-      - name: Install dependencies
+      - name: Install test dependencies
         run: |
-          pip install -r requirements.txt
-          pip install pytest
+          pip install fastapi prometheus-client pytest
       
       - name: Run tests
-        run: pytest tests/ -v
+        run: |
+          pytest tests/ -v
   
   build:
     needs: test
