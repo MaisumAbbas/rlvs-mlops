@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  mlflow:
+    image: python:3.10-slim
+    container_name: mlflow_server
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - /home/ubuntu/mlflow_data:/mlflow
+    command: >
+      bash -c "pip install mlflow boto3 --quiet &&
+               mlflow server
+               --host 0.0.0.0
+               --port 5000
+               --backend-store-uri sqlite:////mlflow/mlflow.db
+               --default-artifact-root /mlflow/artifacts"
+    networks:
+      - rlvs_net
+    mem_limit: 256m        # EC2 1GB RAM - limit each container
+
+  inference:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.inference
+    container_name: rlvs_inference
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=/app/models/model_final.pth
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      - /home/ubuntu/models:/app/models
+    depends_on:
+      - mlflow
+    networks:
+      - rlvs_net
+    mem_limit: 512m
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--storage.tsdb.retention.size=500MB'
+    networks:
+      - rlvs_net
+    mem_limit: 128m
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: grafana
+    restart: always
+    ports:
+      - "8080:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - rlvs_net
+    mem_limit: 128m
+
+networks:
+  rlvs_net:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local

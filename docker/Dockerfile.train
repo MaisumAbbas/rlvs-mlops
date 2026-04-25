@@ -1,0 +1,17 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    libglib2.0-0 libsm6 libxext6 \
+    libxrender-dev libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.train.txt .
+RUN pip install --no-cache-dir -r requirements.train.txt
+
+COPY src/train.py ./src/train.py
+
+ENV MLFLOW_TRACKING_URI=http://mlflow:5000
+
+CMD ["python", "src/train.py"]
