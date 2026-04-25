@@ -15,7 +15,9 @@ services:
                --host 0.0.0.0
                --port 5000
                --backend-store-uri sqlite:////mlflow/mlflow.db
-               --default-artifact-root /mlflow/artifacts"
+               --default-artifact-root /mlflow/artifacts
+               --app-name basic-auth
+               --gunicorn-opts '--timeout 120'"
     networks:
       - rlvs_net
     mem_limit: 256m        # EC2 1GB RAM - limit each container
