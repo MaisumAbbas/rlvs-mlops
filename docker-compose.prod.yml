@@ -8,7 +8,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - /home/ubuntu/mlflow_data:/mlflow
+      - /home/ubuntu/rlvs-mlops/mlflow_data:/mlflow
     command: >
       bash -c "pip install mlflow boto3 --quiet &&
                mlflow server
@@ -32,7 +32,7 @@ services:
       - MODEL_PATH=/app/models/model_final.pth
       - MLFLOW_TRACKING_URI=http://mlflow:5000
     volumes:
-      - /home/ubuntu/models:/app/models
+      - /home/ubuntu/rlvs-mlops/models:/app/models
     depends_on:
       - mlflow
     networks:
