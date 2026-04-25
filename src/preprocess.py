@@ -18,3 +18,4 @@ if __name__ == "__main__":
     make_motion_cache(VIDEO_ROOT, CACHE_DIR, classes=class_names,
                       frames_per_video=16, debug=True)
     print("Cache build complete.")
+    print("Ok")
