@@ -1,0 +1,11 @@
+# Model files - too large for git
+models/*.pth
+models/*.pt
+
+# MLflow data
+mlflow_data/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
