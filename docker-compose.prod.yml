@@ -2,27 +2,19 @@ version: '3.8'
 
 services:
   mlflow:
-    image: python:3.10-slim
+    image: ghcr.io/mlflow/mlflow:v2.9.2
     container_name: mlflow_server
     restart: always
     ports:
       - "5000:5000"
-    environment:
-      - MLFLOW_BACKEND_STORE_URI=sqlite:////mlflow/mlflow.db
-      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
-      - MLFLOW_HOST=0.0.0.0
-      - MLFLOW_PORT=5000
-      - MLFLOW_WORKERS=1
     volumes:
       - /home/ubuntu/rlvs-mlops/mlflow_data:/mlflow
     command: >
-      bash -c "pip install 'mlflow==2.9.2' --quiet &&
-               mlflow server
-               --host 0.0.0.0
-               --port 5000
-               --backend-store-uri sqlite:////mlflow/mlflow.db
-               --default-artifact-root /mlflow/artifacts
-               --workers 1"
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri file:///mlflow
+      --default-artifact-root file:///mlflow/artifacts
     networks:
       - rlvs_net
     mem_limit: 256m
